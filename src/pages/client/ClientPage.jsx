@@ -4,43 +4,41 @@ import { Layout } from "../Layout";
 import { CalendarLocalizer } from "../../helpers/CalendarLocalizer";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { EventBox } from "../../components/EventBox";
-import { AddEventModal } from "../../components/AddEventModal";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import { useUiStore } from "../../hooks/useUiStore";
-
-
-const colors = {
-  black: "#000",
-  white: "#fff",
-  red: "#f00",
-  green: "#0f0",
-  blue: "#00f",
-}
-
-const events = [
-  {
-    title: "Reunión de equipo", // Título del evento
-    start: new Date(2025, 0, 15, 10, 0), // Fecha de inicio (15 de enero, 10:00 AM)
-    end: new Date(2025, 0, 15, 12, 0), // Fecha de fin (15 de enero, 12:00 PM)
-    user: {
-      name: "Juan Pérez",
-      email: "juaka@gmail.com",
-      phone: "1234567890",
-    },
-    bgColor: colors.black,
-  },
-];
+import { Modal } from "../../components/Modal";
+import { useCalendarStore } from "../../hooks/useCalendarStore";
+import { startOfDay } from "date-fns";
 
 export const ClientPage = () => {
-  // 
+  // obteniendo datos del estado ui por medio del custom hook
   const { isDateModalOpen, handletoggleModal } = useUiStore();
+  // obteniendo datos del estado calendar por medio del custom hook
+  const { events, handleSetActiveEvent } = useCalendarStore();
 
   // funcion de ayuda para obtener el slot seleccionado
-  const onSelectSlot = (slotInfo) => {
-    const { slots } = slotInfo;
+  const onSelectSlot = ({ slots, start }) => {
+    if (slots.length > 1) return;
 
-    // Imprimir el primer slot seleccionado
-    console.log(slots[0]);
+    const event = {
+      title: "",
+      start: startOfDay(start),
+      end: startOfDay(start),
+      username: "",
+      phone: "",
+      address: "",
+      formattedDate: start.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      }),
+      startHour: 0,
+      endHour: 1,
+      comments: "",
+      bgColor: "#000",
+    };
+
+    handleSetActiveEvent(event);
 
     // Abrir el modal
     handletoggleModal();
@@ -48,6 +46,10 @@ export const ClientPage = () => {
 
   // funcion de ayuda para obtener el evento seleccionado
   const onSelectEvent = (event) => {
+    handleSetActiveEvent(event);
+  };
+
+  const onDoubleClick = (event) => {
     console.log(event);
   };
 
@@ -69,18 +71,17 @@ export const ClientPage = () => {
           localizer={CalendarLocalizer}
           className="bg-zinc-50"
           events={events}
-          min={new Date(2025, 0, 15, 8, 0)} // Hora de inicio
-          max={new Date(2025, 0, 15, 20, 0)} // Hora de fin
           selectable
           onSelectSlot={onSelectSlot}
           onSelectEvent={onSelectEvent}
+          onDoubleClickEvent={onDoubleClick}
           eventPropGetter={eventStyles}
           components={{
             event: EventBox,
           }}
         />
       </section>
-      <AddEventModal open={isDateModalOpen} />
+      <Modal open={isDateModalOpen} titleModal="schedule service" />
       <button className="fixed right-4 bottom-4 text-white p-2 w-fit h-fit grid place-content-center rounded-full bg-slate-500 hover:scale-105 hover:bg-slate-600 active:scale-95 group">
         <ExclamationCircleIcon className="h-6 w-6 group-hover:stroke-slate-100" />
       </button>

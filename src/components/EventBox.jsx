@@ -6,8 +6,8 @@ export const EventBox = ({ event }) => {
   const hourEnd = format(event.end, "HH:mm");
   return (
     <div className="flex flex-col items-center text-xs">
-      <span className="">{`${hourStart}hrs - ${hourEnd}hrs`}</span>
-      <span>{`${event.title} - ${event.user.name}`}</span>
+      <span className="font-semibold">{`${hourStart}hrs - ${hourEnd}hrs`}</span>
+      <span>{`${event.title} - ${event.name}`}</span>
     </div>
   );
 };
