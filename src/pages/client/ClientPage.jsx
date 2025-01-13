@@ -5,8 +5,8 @@ import { CalendarLocalizer } from "../../helpers/CalendarLocalizer";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { EventBox } from "../../components/EventBox";
 import { AddEventModal } from "../../components/AddEventModal";
-import { useState } from "react";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
+import { useUiStore } from "../../hooks/useUiStore";
 
 
 const colors = {
@@ -32,8 +32,8 @@ const events = [
 ];
 
 export const ClientPage = () => {
-  // estado para controlar si el modal está abierto o cerrado
-  const [openModal, setOpenModal] = useState(false);
+  // 
+  const { isDateModalOpen, handletoggleModal } = useUiStore();
 
   // funcion de ayuda para obtener el slot seleccionado
   const onSelectSlot = (slotInfo) => {
@@ -43,7 +43,7 @@ export const ClientPage = () => {
     console.log(slots[0]);
 
     // Abrir el modal
-    setOpenModal(true);
+    handletoggleModal();
   };
 
   // funcion de ayuda para obtener el evento seleccionado
@@ -80,7 +80,7 @@ export const ClientPage = () => {
           }}
         />
       </section>
-      <AddEventModal open={openModal} />
+      <AddEventModal open={isDateModalOpen} />
       <button className="fixed right-4 bottom-4 text-white p-2 w-fit h-fit grid place-content-center rounded-full bg-slate-500 hover:scale-105 hover:bg-slate-600 active:scale-95 group">
         <ExclamationCircleIcon className="h-6 w-6 group-hover:stroke-slate-100" />
       </button>
