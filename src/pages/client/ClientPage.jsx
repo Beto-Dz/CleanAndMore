@@ -9,6 +9,7 @@ import { useUiStore } from "../../hooks/useUiStore";
 import { Modal } from "../../components/Modal";
 import { useCalendarStore } from "../../hooks/useCalendarStore";
 import { startOfDay } from "date-fns";
+import { Toast } from "../../components/Toast";
 
 export const ClientPage = () => {
   // obteniendo datos del estado ui por medio del custom hook
@@ -32,8 +33,8 @@ export const ClientPage = () => {
         day: "numeric",
         year: "numeric",
       }),
-      startHour: 0,
-      endHour: 1,
+      startHour: null,
+      endHour: null,
       comments: "",
       bgColor: "#000",
     };
@@ -50,7 +51,8 @@ export const ClientPage = () => {
   };
 
   const onDoubleClick = (event) => {
-    console.log(event);
+    handleSetActiveEvent(event);
+    handletoggleModal();
   };
 
   // funcion de ayuda para obtener los estilos de los eventos
@@ -82,6 +84,9 @@ export const ClientPage = () => {
         />
       </section>
       <Modal open={isDateModalOpen} titleModal="schedule service" />
+      <Toast>
+        algo
+      </Toast>
       <button className="fixed right-4 bottom-4 text-white p-2 w-fit h-fit grid place-content-center rounded-full bg-slate-500 hover:scale-105 hover:bg-slate-600 active:scale-95 group">
         <ExclamationCircleIcon className="h-6 w-6 group-hover:stroke-slate-100" />
       </button>

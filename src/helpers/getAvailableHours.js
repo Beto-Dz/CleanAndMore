@@ -8,22 +8,27 @@ export const getAvailableHours = (date, events) => {
     );
   });
 
-  // Crear un array con las horas ocupadas
+  // Crear un array con las horas ocupadas (horas completas)
   const occupiedIntervals = sameDayEvents.map((event) => ({
     start: event.start.getHours(),
     end: event.end.getHours(),
   }));
 
-  // Rango de horas del día (0 - 24)
+  // Rango de horas del día (0 - 23)
   const allHours = Array.from({ length: 24 }, (_, i) => i);
 
-  // Calcular horas disponibles
+  // Calcular horas disponibles, asegurando que no se solapen con los intervalos ocupados
+  // Si la fecha es el día de hoy, no permitir horas pasadas
+  const currentHour = new Date().getHours();
   const availableHours = allHours.filter((hour) => {
-    return !occupiedIntervals.some(
-      (interval) => hour >= interval.start && hour < interval.end
+    const isPastHour =
+      date.toDateString() === new Date().toDateString() && hour < currentHour;
+    return (
+      !occupiedIntervals.some(
+        (interval) => hour >= interval.start && hour < interval.end
+      ) && !isPastHour
     );
   });
 
   return availableHours;
 };
-6

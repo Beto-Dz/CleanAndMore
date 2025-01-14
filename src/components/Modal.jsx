@@ -2,7 +2,16 @@ import { useSelector } from "react-redux";
 import { useUiStore } from "../hooks/useUiStore";
 import { useForm } from "../hooks/useForm";
 import { getAvailableHours } from "../helpers/getAvailableHours";
-import {patterns} from "../utilitys/patterns.js"
+import { patterns } from "../utilitys/patterns.js";
+import { useMemo, useState } from "react";
+import { useCalendarStore } from "../hooks/useCalendarStore.js";
+
+const formValidations = {
+  title: (value) => ( value.length > 5 && patterns.onlyLetters.js.test(value) ),
+  username: (value) => ( value.length > 3 && patterns.onlyLetters.js.test(value) ),
+  phone: (value) => ( value.length > 6 && patterns.onlyNumbers.js.test(value) ),
+  address: (value) => ( value.length > 10 ),
+}
 
 export const Modal = ({ open, titleModal }) => {
   if (open === false) return null;
@@ -10,14 +19,20 @@ export const Modal = ({ open, titleModal }) => {
   // obteniendo el estado del toggle
   const { handletoggleModal } = useUiStore();
 
+  // obteniendo las funciones del custom hook para manejar el estado
+  const { handleSetActiveEvent, handleAddEvent, handleUpdateEvent, handleDeleteEvent } = useCalendarStore();
+
   // obteniendo el evento activo
   const { events, activeEvent } = useSelector((state) => state.calendar);
 
   // Obtener horarios disponibles para la fecha seleccionada
-  const availableHours = getAvailableHours(new Date(activeEvent.start), events);
+  const availableHours = useMemo(() => getAvailableHours(new Date(activeEvent.start), events),[activeEvent])
 
   // estado para formulario
-  const { title, start, end, username, phone, address, startHour, endHour, comments, handleOnInputChange, formObject } = useForm({...activeEvent});
+  const { title, start, end, username, phone, address, startHour, endHour, comments, titleValid, usernameValid, phoneValid, addressValid, handleOnInputChange, formObject, isValidForm } = useForm(activeEvent, formValidations);
+  
+  // estado para manejar cuando se hace submit y mostrar errores del formulario
+  const [formSubmitted, setFormSubmitted] = useState(false)
 
   // funcion de ayuda para ocultas / mostrar modal
   const handleToggle = (event) => {
@@ -27,11 +42,55 @@ export const Modal = ({ open, titleModal }) => {
     }
   };
 
-
-  const handleOnSubmit = (e) =>{
-    e.preventDefault();
-    console.log(formObject)
+  const handleDrop = () => {
+    handleDeleteEvent(activeEvent)
+    handleToggle()
+    handleSetActiveEvent(null)
   }
+
+
+  // funcion de ayuda para manejar el envio del formulario
+  const handleOnSubmit = (e) => {
+    e.preventDefault();
+    setFormSubmitted(true);
+
+    // Convierte las cadenas de fecha a objetos Date
+    const startDate = new Date(formObject.start);
+    const endDate = new Date(formObject.end);
+  
+    // agregando las horas a las fechas
+    startDate.setHours(parseInt(formObject.startHour, 10), 0, 0, 0);
+    endDate.setHours(parseInt(formObject.endHour, 10), 0, 0, 0);
+
+    // verificando si las fechas son válidad
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+      console.error("Invalid start or end date");
+      return;
+    }
+
+    if (activeEvent.id){
+      handleUpdateEvent(formObject);
+      // Enviar el evento al estado global
+      handleSetActiveEvent(formObject);
+    } else{
+      // creando el event
+      const event = {
+        ...formObject,
+        start: startDate,
+        end: endDate,
+        id: new Date().getTime()
+      };
+    
+      handleAddEvent(event);
+      // Enviar el evento al estado global
+      handleSetActiveEvent(event);
+    }
+  
+    // cerrar el modal
+    handletoggleModal();
+  };
+  
+  
 
   return (
     <div
@@ -46,10 +105,15 @@ export const Modal = ({ open, titleModal }) => {
           </h2>
         </header>
         <form id="form-event" className="flex flex-col gap-2" onSubmit={handleOnSubmit}>
-          <label htmlFor="title" className="font-semibold text-slate-800 after:content-['*'] after:ml-0.5 after:text-red-500">
-            Title
-          </label>
-          <input type="text" name="title" id="title" value={title} onChange={handleOnInputChange} placeholder="What you need?" autoFocus minLength={5} pattern={patterns.onlyLetters.html} required className="p-1 rounded-md ring-2 ring-sky-200 focus:ring-sky-500 invalid:bg-red-300" />
+
+          <div className="flex flex-col gap-px">
+            <label htmlFor="title" className="font-semibold text-slate-800 after:content-['*'] after:ml-0.5 after:text-red-500" >
+              Title
+            </label>
+            <input type="text" name="title" id="title" value={title} onChange={handleOnInputChange} placeholder="What you need?" autoFocus minLength={5} pattern={patterns.onlyLetters.html} required className={`p-1 rounded-md ring-2 ring-sky-200 focus:ring-sky-500 ${(!titleValid && formSubmitted) ? 'invalid:ring-red-500' : ''} peer/title`} />
+            <span className="text-slate-500 text-xs peer-invalid/title:visible peer-invalid/text-red-500">Only write words and with more than 5 characters</span>
+          </div>
+
           <fieldset className="flex flex-col gap-2">
             <input type="text" disabled value={activeEvent.formattedDate} className="text-center bg-white disabled:text-slate-500 font-semibold" />
             <legend className="text-center text-xs text-slate-700">Date and time of service</legend>
@@ -59,6 +123,7 @@ export const Modal = ({ open, titleModal }) => {
                   Start hour
                 </label>
                 <select name="startHour" id="startHour" value={startHour} onChange={handleOnInputChange} required className="p-1 rounded-md ring-2 ring-sky-200 focus:ring-sky-500">
+                  <option value="null">-</option>
                   {availableHours.map((hour) => (
                     <option key={hour} value={hour}>
                       {`${hour}:00 hrs`}
@@ -71,6 +136,7 @@ export const Modal = ({ open, titleModal }) => {
                   End hour
                 </label>
                 <select name="endHour" id="endHour" value={endHour} onChange={handleOnInputChange} required className="p-1 rounded-md ring-2 ring-sky-200 focus:ring-sky-500" >
+                  <option value="null">-</option>
                   {availableHours.map((hour) => {
                     if (hour > startHour) {
                       return (
@@ -84,35 +150,56 @@ export const Modal = ({ open, titleModal }) => {
               </section>
             </section>
           </fieldset>
+
           <fieldset className="flex flex-col gap-2">
-            <legend className="text-center text-xs text-slate-700">General data</legend>
-            <label htmlFor="username" className="font-semibold text-slate-800 after:content-['*'] after:ml-0.5 after:text-red-500">
-              Name
-            </label>
-            <input type="text" name="username" id="username" value={username} onChange={handleOnInputChange} minLength={3} pattern={patterns.onlyLetters.html} required placeholder="What's your name?" className="p-1 rounded-md ring-2 ring-sky-200 focus:ring-sky-500 invalid:bg-red-300"
-            />
-            <label htmlFor="phone" className="font-semibold text-slate-800 after:content-['*'] after:ml-0.5 after:text-red-500">
-              Phone number
-            </label>
-            <input type="tel" name="phone" id="phone" value={phone} onChange={handleOnInputChange} minLength={6} pattern={patterns.onlyNumbers.html} required placeholder="###" className="p-1 rounded-md ring-2 ring-sky-200 focus:ring-sky-500 invalid:bg-red-300"/>
-            <label htmlFor="address" className="font-semibold text-slate-800 after:content-['*'] after:ml-0.5 after:text-red-500">
-              Address
-            </label>
-            <textarea name="address" id="address" value={address} onChange={handleOnInputChange} minLength={10} required placeholder="Where is the service?" className="p-1 rounded-md ring-2 ring-sky-200 focus:ring-sky-500 invalid:bg-red-300">
-            </textarea>
+            <legend className="text-center text-xs text-slate-700">Contact data</legend>
+            <div className="flex flex-col gap-px">
+              <label htmlFor="username" className="font-semibold text-slate-800 after:content-['*'] after:ml-0.5 after:text-red-500">
+                Name
+              </label>
+              <input type="text" name="username" id="username" value={username} onChange={handleOnInputChange} minLength={3} pattern={patterns.onlyLetters.html} required placeholder="What's your name?" className={`p-1 rounded-md ring-2 ring-sky-200 focus:ring-sky-500 ${(usernameValid && formSubmitted) ? 'invalid:ring-red-500' : ''} peer/name`}/>
+              <span className="text-slate-500 text-xs peer-invalid/name:visible peer-invalid/text-red-500">Only write words and with more than 3 characters</span>
+            </div>
+            <div className="flex flex-col gap-px">
+              <label htmlFor="phone" className="font-semibold text-slate-800 after:content-['*'] after:ml-0.5 after:text-red-500">
+                Phone number
+              </label>
+              <input type="tel" name="phone" id="phone" value={phone} onChange={handleOnInputChange} minLength={6} pattern={patterns.onlyNumbers.html} required placeholder="######" className={`p-1 rounded-md ring-2 ring-sky-200 focus:ring-sky-500 ${(!phoneValid && formSubmitted) ? 'invalid:ring-red-500' : ''} peer/phone`}/>
+              <span className="text-slate-500 text-xs peer-invalid/phone:visible peer-invalid/text-red-500">Just enter numbers</span>
+            </div>
+            <div className="flex flex-col gap-px">
+              <label htmlFor="address" className="font-semibold text-slate-800 after:content-['*'] after:ml-0.5 after:text-red-500">
+                Address
+              </label>
+              <textarea name="address" id="address" value={address} onChange={handleOnInputChange} minLength={10} required placeholder="Where is the service?" className={`p-1 rounded-md ring-2 ring-sky-200 focus:ring-sky-500 ${(!addressValid && formSubmitted) ? 'invalid:ring-red-500' : ''} peer/address`}>
+              </textarea>
+              <span className="text-slate-500 text-xs peer-invalid/address:visible peer-invalid/text-red-500">Add an address longer than 10 characters</span>
+            </div>
           </fieldset>
-          <label htmlFor="" className="font-semibold text-slate-800">
-            Comments
-          </label>
-          <textarea name="comments" id="comments" value={comments} onChange={handleOnInputChange} placeholder="Any special instruction?" className="p-1 rounded-md ring-2 ring-sky-200 focus:ring-sky-500">
-          </textarea>
+
+          <div className="flex flex-col gap-px">
+            <label htmlFor="" className="font-semibold text-slate-800">
+              Comments
+            </label>
+            <textarea name="comments" id="comments" value={comments} onChange={handleOnInputChange} placeholder="Any special instruction?" className="p-1 rounded-md ring-2 ring-sky-200 focus:ring-sky-500">
+            </textarea>
+          </div>
         </form>
+
         <footer className="flex justify-center gap-2">
-          <button className="bg-red-500 text-white px-2 py-1 rounded-lg hover:scale-105 active:scale-95" onClick={handletoggleModal}>
+          <button className="bg-red-500 text-white px-2 py-1 rounded-lg hover:scale-105 active:scale-95" onClick={handleToggle}>
             Cancel
           </button>
-          <button form="form-event" type="submit" className="bg-sky-500 text-white px-2 py-1 rounded-lg hover:scale-105 active:scale-95">
-            Aceptar
+          {
+            activeEvent.id
+            && 
+            (<button className="bg-red-500 text-white px-2 py-1 rounded-lg hover:scale-105 active:scale-95" onClick={handleDrop}>
+                Drop
+              </button>
+            )
+          }
+          <button form="form-event" type="submit" className="bg-sky-500 text-white px-2 py-1 rounded-lg hover:scale-105 active:scale-95 font-semibold disabled:bg-sky-100">
+            Accept
           </button>
         </footer>
       </dialog>
