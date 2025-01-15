@@ -17,7 +17,8 @@ export const useForm = (initialForm = {}, formValidations = {}) => {
 
   // funcion para saber si el formulario está listo para ser enviado al backend
   const isValidForm = useMemo(() => {
-    return Object.values(formValidation).every((value) => value);
+    const isValid = Object.keys(formValidations).map((key) => formValidation[`${key}Valid`]);
+    return isValid.every((value) => value);
   }, [formValidation]);
 
   // cuando cambie el formulario

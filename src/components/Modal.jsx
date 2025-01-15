@@ -11,6 +11,8 @@ const formValidations = {
   username: (value) => ( value.length > 3 && patterns.onlyLetters.js.test(value) ),
   phone: (value) => ( value.length > 6 && patterns.onlyNumbers.js.test(value) ),
   address: (value) => ( value.length > 10 ),
+  startHour: (value) => (!!value),
+  endHour: (value) => (!!value)
 }
 
 export const Modal = ({ open, titleModal }) => {
@@ -39,12 +41,13 @@ export const Modal = ({ open, titleModal }) => {
     // si se hizo click sobre el div, cierra el modal
     if (event.target === event.currentTarget) {
       handletoggleModal();
+      setFormSubmitted(false)
     }
   };
 
   const handleDrop = () => {
     handleDeleteEvent(activeEvent)
-    handleToggle()
+    handletoggleModal()
     handleSetActiveEvent(null)
   }
 
@@ -53,6 +56,8 @@ export const Modal = ({ open, titleModal }) => {
   const handleOnSubmit = (e) => {
     e.preventDefault();
     setFormSubmitted(true);
+
+    if(!isValidForm) return;
 
     // Convierte las cadenas de fecha a objetos Date
     const startDate = new Date(formObject.start);
@@ -111,7 +116,7 @@ export const Modal = ({ open, titleModal }) => {
               Title
             </label>
             <input type="text" name="title" id="title" value={title} onChange={handleOnInputChange} placeholder="What you need?" autoFocus minLength={5} pattern={patterns.onlyLetters.html} required className={`p-1 rounded-md ring-2 ring-sky-200 focus:ring-sky-500 ${(!titleValid && formSubmitted) ? 'invalid:ring-red-500' : ''} peer/title`} />
-            <span className="text-slate-500 text-xs peer-invalid/title:visible peer-invalid/text-red-500">Only write words and with more than 5 characters</span>
+            <span className={`text-slate-500 text-xs ${ (!titleValid && formSubmitted) ? 'peer-invalid/title:text-red-500' : '' }`}>Only write words and with more than 5 characters</span>
           </div>
 
           <fieldset className="flex flex-col gap-2">
@@ -157,15 +162,15 @@ export const Modal = ({ open, titleModal }) => {
               <label htmlFor="username" className="font-semibold text-slate-800 after:content-['*'] after:ml-0.5 after:text-red-500">
                 Name
               </label>
-              <input type="text" name="username" id="username" value={username} onChange={handleOnInputChange} minLength={3} pattern={patterns.onlyLetters.html} required placeholder="What's your name?" className={`p-1 rounded-md ring-2 ring-sky-200 focus:ring-sky-500 ${(usernameValid && formSubmitted) ? 'invalid:ring-red-500' : ''} peer/name`}/>
-              <span className="text-slate-500 text-xs peer-invalid/name:visible peer-invalid/text-red-500">Only write words and with more than 3 characters</span>
+              <input type="text" name="username" id="username" value={username} onChange={handleOnInputChange} minLength={3} pattern={patterns.onlyLetters.html} required placeholder="What's your name?" className={`p-1 rounded-md ring-2 ring-sky-200 focus:ring-sky-500 ${(!usernameValid && formSubmitted) ? 'invalid:ring-red-500' : ''} peer/username`}/>
+              <span className={`text-slate-500 text-xs ${ (!usernameValid && formSubmitted) ? 'peer-invalid/username:text-red-500' : '' }`}>Only write words and with more than 3 characters</span>
             </div>
             <div className="flex flex-col gap-px">
               <label htmlFor="phone" className="font-semibold text-slate-800 after:content-['*'] after:ml-0.5 after:text-red-500">
                 Phone number
               </label>
               <input type="tel" name="phone" id="phone" value={phone} onChange={handleOnInputChange} minLength={6} pattern={patterns.onlyNumbers.html} required placeholder="######" className={`p-1 rounded-md ring-2 ring-sky-200 focus:ring-sky-500 ${(!phoneValid && formSubmitted) ? 'invalid:ring-red-500' : ''} peer/phone`}/>
-              <span className="text-slate-500 text-xs peer-invalid/phone:visible peer-invalid/text-red-500">Just enter numbers</span>
+              <span className={`text-slate-500 text-xs ${ (!phoneValid && formSubmitted) ? 'peer-invalid/phone:text-red-500' : '' }`}>Just enter numbers</span>
             </div>
             <div className="flex flex-col gap-px">
               <label htmlFor="address" className="font-semibold text-slate-800 after:content-['*'] after:ml-0.5 after:text-red-500">
@@ -173,7 +178,7 @@ export const Modal = ({ open, titleModal }) => {
               </label>
               <textarea name="address" id="address" value={address} onChange={handleOnInputChange} minLength={10} required placeholder="Where is the service?" className={`p-1 rounded-md ring-2 ring-sky-200 focus:ring-sky-500 ${(!addressValid && formSubmitted) ? 'invalid:ring-red-500' : ''} peer/address`}>
               </textarea>
-              <span className="text-slate-500 text-xs peer-invalid/address:visible peer-invalid/text-red-500">Add an address longer than 10 characters</span>
+              <span className={`text-slate-500 text-xs ${ (!addressValid && formSubmitted) ? 'peer-invalid/address:text-red-500' : '' }`}>Add an address longer than 10 characters</span>
             </div>
           </fieldset>
 
