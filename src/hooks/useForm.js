@@ -10,7 +10,7 @@ export const useForm = (initialForm = {}, formValidations = {}) => {
   useEffect(() => {
     const objeto = {};
     Object.keys(formValidations).forEach((key) => {
-      objeto[`${key}Valid`] = false;
+      objeto[`${key}Valid`] = formValidations[key]?.(formState[key]);
     });
     setFormValidation(objeto);
   }, []);

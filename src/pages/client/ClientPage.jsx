@@ -5,11 +5,11 @@ import { CalendarLocalizer } from "../../helpers/CalendarLocalizer";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { EventBox } from "../../components/EventBox";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
-import { useUiStore } from "../../hooks/useUiStore";
+import { useUiStore, useCalendarStore } from "../../hooks";
 import { Modal } from "../../components/Modal";
-import { useCalendarStore } from "../../hooks/useCalendarStore";
-import { startOfDay } from "date-fns";
-import { Toast } from "../../components/Toast";
+import { startOfDay, isBefore } from "date-fns";
+import toast from 'react-simple-toasts';
+import 'react-simple-toasts/dist/style.css';
 
 export const ClientPage = () => {
   // obteniendo datos del estado ui por medio del custom hook
@@ -21,6 +21,10 @@ export const ClientPage = () => {
   const onSelectSlot = ({ slots, start }) => {
     if (slots.length > 1) return;
 
+    if(isBefore(start, startOfDay(new Date()))) {
+      return toast('Events cannot be scheduled for earlier dates', {duration: 3000, className: 'text-white bg-red-400 rounded-full py-2 px-4'});
+    };
+    
     const event = {
       title: "",
       start: startOfDay(start),
@@ -36,7 +40,6 @@ export const ClientPage = () => {
       startHour: null,
       endHour: null,
       comments: "",
-      bgColor: "#000",
     };
 
     handleSetActiveEvent(event);
@@ -56,10 +59,10 @@ export const ClientPage = () => {
   };
 
   // funcion de ayuda para obtener los estilos de los eventos
-  const eventStyles = (event) => {
+  const eventStyles = () => {
     return {
       style: {
-        backgroundColor: event.bgColor,
+        backgroundColor: '#000',
         color: "white",
       },
     };
@@ -84,9 +87,6 @@ export const ClientPage = () => {
         />
       </section>
       <Modal open={isDateModalOpen} titleModal="schedule service" />
-      <Toast>
-        algo
-      </Toast>
       <button className="fixed right-4 bottom-4 text-white p-2 w-fit h-fit grid place-content-center rounded-full bg-slate-500 hover:scale-105 hover:bg-slate-600 active:scale-95 group">
         <ExclamationCircleIcon className="h-6 w-6 group-hover:stroke-slate-100" />
       </button>

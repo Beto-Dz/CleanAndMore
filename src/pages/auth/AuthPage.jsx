@@ -26,7 +26,7 @@ export const AuthPage = () => {
   };
 
   return (
-    <section className="w-full h-dvh grid place-content-center bg-cyan-300">
+    <section className="w-full h-dvh grid place-content-center bg-slate-800">
       <div className="px-4 py-2 min-w-80 sm:min-w-96 md:w-[400px] rounded-lg bg-white">
         <form className="flex flex-col gap-1" onSubmit={handleOnSubmit}>
           <div className="flex flex-col gap-px">

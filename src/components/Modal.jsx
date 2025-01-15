@@ -1,10 +1,10 @@
 import { useSelector } from "react-redux";
-import { useUiStore } from "../hooks/useUiStore";
-import { useForm } from "../hooks/useForm";
+import { useUiStore, useForm, useCalendarStore } from "../hooks";
 import { getAvailableHours } from "../helpers/getAvailableHours";
 import { patterns } from "../utilitys/patterns.js";
 import { useMemo, useState } from "react";
-import { useCalendarStore } from "../hooks/useCalendarStore.js";
+import toast from 'react-simple-toasts';
+import 'react-simple-toasts/dist/style.css';
 
 const formValidations = {
   title: (value) => ( value.length > 5 && patterns.onlyLetters.js.test(value) ),
@@ -49,6 +49,7 @@ export const Modal = ({ open, titleModal }) => {
     handleDeleteEvent(activeEvent)
     handletoggleModal()
     handleSetActiveEvent(null)
+    return toast("Event eliminated", {duration: 2000, className: 'text-white bg-red-400 rounded-full py-2 px-4'});
   }
 
 
@@ -73,10 +74,13 @@ export const Modal = ({ open, titleModal }) => {
       return;
     }
 
+    let toastMessage = 'Event successfully added'
+
     if (activeEvent.id){
       handleUpdateEvent(formObject);
       // Enviar el evento al estado global
       handleSetActiveEvent(formObject);
+      toastMessage = 'Event successfully updated';
     } else{
       // creando el event
       const event = {
@@ -90,9 +94,10 @@ export const Modal = ({ open, titleModal }) => {
       // Enviar el evento al estado global
       handleSetActiveEvent(event);
     }
-  
+    
     // cerrar el modal
     handletoggleModal();
+    return toast(toastMessage, {duration: 2000, className: 'text-white bg-sky-400 rounded-full py-2 px-4'});
   };
   
   
