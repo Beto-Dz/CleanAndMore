@@ -7,7 +7,7 @@ export const EventBox = ({ event }) => {
   return (
     <div className="flex flex-col items-center text-xs">
       <span className="font-semibold">{`${hourStart}hrs - ${hourEnd}hrs`}</span>
-      <span>{`${event.title} - ${event.username}`}</span>
+      <span>{`${event.title} - ${event.name}`}</span>
     </div>
   );
 };

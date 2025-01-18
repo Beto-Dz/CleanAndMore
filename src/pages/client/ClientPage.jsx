@@ -4,7 +4,6 @@ import { Layout } from "../Layout";
 import { CalendarLocalizer } from "../../helpers/CalendarLocalizer";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { EventBox } from "../../components/EventBox";
-import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import { useUiStore, useCalendarStore } from "../../hooks";
 import { Modal } from "../../components/Modal";
 import { startOfDay, isBefore } from "date-fns";
@@ -29,7 +28,7 @@ export const ClientPage = () => {
       title: "",
       start: startOfDay(start),
       end: startOfDay(start),
-      username: "",
+      name: "",
       phone: "",
       address: "",
       formattedDate: start.toLocaleDateString("en-US", {
@@ -87,9 +86,6 @@ export const ClientPage = () => {
         />
       </section>
       <Modal open={isDateModalOpen} titleModal="schedule service" />
-      <button className="fixed right-4 bottom-4 text-white p-2 w-fit h-fit grid place-content-center rounded-full bg-slate-500 hover:scale-105 hover:bg-slate-600 active:scale-95 group">
-        <ExclamationCircleIcon className="h-6 w-6 group-hover:stroke-slate-100" />
-      </button>
     </Layout>
   );
 };
