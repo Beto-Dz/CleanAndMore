@@ -17,7 +17,7 @@ export const Navbar = () => {
           <ArrowRightEndOnRectangleIcon className="h-8 w-8" />
         </button>
       </section>
-      <h3 className="text-center">Wecome, {user.name}!!</h3>
+      <h3 className="text-center">Welcome, {user.name}!!</h3>
     </header>
   );
 };

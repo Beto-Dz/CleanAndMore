@@ -161,6 +161,9 @@ export const Modal = ({ open, titleModal }) => {
                   className="p-1 rounded-md ring-2 ring-sky-200 focus:ring-sky-500" 
                 >
                   <option value="null">-</option>
+                  {
+                    !!endHour && (<option key={endHour} value={endHour}>{`${endHour}:00 hrs`}</option>)
+                  }
                   {availableHours.map((hour) => {
                     if (hour > startHour) {
                       return (
@@ -175,8 +178,8 @@ export const Modal = ({ open, titleModal }) => {
             </section>
           </fieldset>
 
-          <div className="flex flex-col items-center justify-between gap-2 font-semibold text-secondary">
-              <a href={`tel:${phoneShow}`}>Phone Number:{phoneShow}</a>
+          <div className="flex flex-col items-center justify-between gap-2 font-semibold text-sky-400">
+              <a href={`tel:${phoneShow}`}>Phone Number: {phoneShow}</a>
               <a href={`mailto:${emailShow}?subject=Cleaning and more: service&body=Hi! `}>Email: {emailShow}</a>
           </div>
           
@@ -205,7 +208,7 @@ export const Modal = ({ open, titleModal }) => {
         </form>
 
         <footer className="flex justify-center gap-2">
-          <button className="bg-red-500 text-white px-2 py-1 rounded-lg hover:scale-105 active:scale-95" onClick={handleToggle}>
+          <button className="bg-red-500 text-white px-2 py-1 rounded-lg hover:scale-105 active:scale-95" onClick={handletoggleModal}>
             Cancel
           </button>
           {activeEvent.id

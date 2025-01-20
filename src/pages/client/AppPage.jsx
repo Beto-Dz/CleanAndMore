@@ -31,8 +31,9 @@ export const AppPage = () => {
       end: startOfDay(start),
       user,
       formattedDate: start.toLocaleDateString("en-US", {
-        month: "short",
+        weekday: "long",
         day: "numeric",
+        month: "long",
         year: "numeric",
       }),
       startHour: null,
@@ -76,7 +77,7 @@ export const AppPage = () => {
       <section className="overflow-scroll">
         <Calendar
           localizer={CalendarLocalizer}
-          className="bg-zinc-50"
+          className="bg-emerald-50"
           events={events}
           selectable
           onSelectSlot={onSelectSlot}
