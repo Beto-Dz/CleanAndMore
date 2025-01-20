@@ -9,12 +9,11 @@ import 'react-simple-toasts/dist/style.css';
 const formValidations = {
   title: (value) => ( value.length > 5 && patterns.onlyLetters.js.test(value) ),
   startHour: (value) => (!!value),
-  endHour: (value) => (!!value)
+  endHour: (value) => (!!value),
+  address: (value) => value.length >= 10,
 }
 
 export const Modal = ({ open, titleModal }) => {
-  if (open === false) return null;
-
   // obteniendo el estado del toggle
   const { handletoggleModal } = useUiStore();
 
@@ -24,12 +23,23 @@ export const Modal = ({ open, titleModal }) => {
   // obteniendo el evento activo
   const { events, activeEvent } = useSelector((state) => state.calendar);
 
+  // si el evento activo tiene un id, significa que es actualizacion por lo que ya viene con address, si no, entonces seteo address con la direccion del usuario
+  // memorizamos para evitar estar evaluando esto siempre
+  const activeEventWithAddress = useMemo(() => { 
+    return activeEvent.id ? activeEvent : {...activeEvent, address: activeEvent.user.address};
+  }, [activeEvent]);
+
+  // evaluando el numero a mostrar
+  const phoneShow = activeEvent.user.phone;
+  // evaluando el numero a mostrar
+  const emailShow = activeEvent.user.email;
+
   // Obtener horarios disponibles para la fecha seleccionada
   const availableHours = useMemo(() => getAvailableHours(new Date(activeEvent.start), events),[activeEvent])
 
   // estado para formulario
-  const { title, start, end, startHour, endHour, comments, titleValid, handleOnInputChange, formObject, isValidForm } = 
-    useForm(activeEvent, formValidations);
+  const { title, start, end, startHour, endHour, address, comments, titleValid, addressValid, handleOnInputChange, formObject, isValidForm } = 
+    useForm(activeEventWithAddress, formValidations);
   
   // estado para manejar cuando se hace submit y mostrar errores del formulario
   const [formSubmitted, setFormSubmitted] = useState(false)
@@ -130,8 +140,11 @@ export const Modal = ({ open, titleModal }) => {
                 <label htmlFor="startHour" className="font-semibold text-slate-800 after:content-['*'] after:ml-0.5 after:text-red-500">
                   Start hour
                 </label>
-                <select name="startHour" id="startHour" value={startHour} onChange={handleOnInputChange} required className="p-1 rounded-md ring-2 ring-sky-200 focus:ring-sky-500">
+                <select name="startHour" id="startHour" value={startHour || "null"} onChange={handleOnInputChange} required className="p-1 rounded-md ring-2 ring-sky-200 focus:ring-sky-500">
                   <option value="null">-</option>
+                  {
+                    !!startHour && (<option key={startHour} value={startHour}>{`${startHour}:00 hrs`}</option>)
+                  }
                   {availableHours.map((hour) => (
                     <option key={hour} value={hour}>
                       {`${hour}:00 hrs`}
@@ -143,7 +156,7 @@ export const Modal = ({ open, titleModal }) => {
                 <label htmlFor="endHour" className="font-semibold text-slate-800 after:content-['*'] after:ml-0.5 after:text-red-500">
                   End hour
                 </label>
-                <select name="endHour" id="endHour" value={endHour} onChange={handleOnInputChange} required className="p-1 rounded-md ring-2 ring-sky-200 focus:ring-sky-500" >
+                <select name="endHour" id="endHour" value={endHour || "null"} onChange={handleOnInputChange} required className="p-1 rounded-md ring-2 ring-sky-200 focus:ring-sky-500" >
                   <option value="null">-</option>
                   {availableHours.map((hour) => {
                     if (hour > startHour) {
@@ -158,6 +171,24 @@ export const Modal = ({ open, titleModal }) => {
               </section>
             </section>
           </fieldset>
+
+          <div className="flex flex-col items-center justify-between gap-2 font-semibold text-secondary">
+              <a href={`tel:${phoneShow}`}>Phone Number:{phoneShow}</a>
+              <a href={`mailto:${emailShow}?subject=Cleaning and more: service&body=Hi! `}>Email: {emailShow}</a>
+          </div>
+          
+
+          <div className="flex flex-col gap-px">
+            <label htmlFor="address" className="font-semibold text-slate-800 after:content-['*'] after:ml-0.5 after:text-red-500">
+              Address
+            </label>
+            <textarea name="address" id="address" value={address} onChange={handleOnInputChange} minLength={10} required placeholder="Where is the service?"
+              className={`p-1 rounded-md ring-2 ring-sky-200 focus:ring-sky-500 ${!addressValid && formSubmitted ? "invalid:ring-red-500" : ""} peer/address`}
+            ></textarea>
+            <span className={`text-slate-500 text-xs ${!addressValid && formSubmitted? "peer-invalid/address:text-red-500" : ""}`}>
+              Write your address, detailed and longer than 10 characters.
+            </span>
+          </div>
 
           <div className="flex flex-col gap-px">
             <label htmlFor="" className="font-semibold text-slate-800">

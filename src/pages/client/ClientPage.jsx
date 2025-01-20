@@ -9,12 +9,16 @@ import { Modal } from "../../components/Modal";
 import { startOfDay, isBefore } from "date-fns";
 import toast from 'react-simple-toasts';
 import 'react-simple-toasts/dist/style.css';
+import { useEffect } from "react";
+import { useAuthStore } from "../../hooks/useAuthStore";
 
 export const ClientPage = () => {
   // obteniendo datos del estado ui por medio del custom hook
   const { isDateModalOpen, handletoggleModal } = useUiStore();
   // obteniendo datos del estado calendar por medio del custom hook
-  const { events, handleSetActiveEvent } = useCalendarStore();
+  const { events, handleSetActiveEvent, startLoadingEvents } = useCalendarStore();
+  //obteniendo los datos del usuario actual de la sesion
+  const { user } = useAuthStore()
 
   // funcion de ayuda para obtener el slot seleccionado
   const onSelectSlot = ({ slots, start }) => {
@@ -28,9 +32,7 @@ export const ClientPage = () => {
       title: "",
       start: startOfDay(start),
       end: startOfDay(start),
-      name: "",
-      phone: "",
-      address: "",
+      user,
       formattedDate: start.toLocaleDateString("en-US", {
         month: "short",
         day: "numeric",
@@ -67,6 +69,10 @@ export const ClientPage = () => {
     };
   };
 
+  useEffect(() => {
+    startLoadingEvents();
+  }, []);
+
   return (
     <Layout>
       <Navbar />
@@ -85,7 +91,9 @@ export const ClientPage = () => {
           }}
         />
       </section>
-      <Modal open={isDateModalOpen} titleModal="schedule service" />
+      {
+        isDateModalOpen && (<Modal open={isDateModalOpen} titleModal="schedule service" />)
+      }
     </Layout>
   );
 };

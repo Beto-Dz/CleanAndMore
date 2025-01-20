@@ -18,7 +18,10 @@ export const useAuthStore = () => {
       const { data } = await backendAPI.post("/auth/", { email, password });
       // guardamos el token en el localStorage
       window.localStorage.setItem("token", data.token);
-      dispatch(onLogin({uuid: data.uuid, name: data.name, address: data.address}));
+      delete data.token;
+      delete data.ok;
+      delete data.msg;
+      dispatch(onLogin(data));
     } catch (error) {
       dispatch(onLogout(error?.response?.data?.msg || "Error"));
       setTimeout(() => {
@@ -36,7 +39,10 @@ export const useAuthStore = () => {
       const { data } = await backendAPI.post("/auth/new", { name, email, password, phone, address });
       // guardamos el token en el localStorage
       window.localStorage.setItem("token", data.token);
-      dispatch(onLogin({uuid: data.uuid, name: data.name, address: data.address}));
+      delete data.token;
+      delete data.ok;
+      delete data.msg;
+      dispatch(onLogin(data));
     } catch (error) {
       dispatch(onLogout(error?.response?.data?.msg || "No se ha podido crear el usuario"));
       setTimeout(() => {
@@ -56,7 +62,10 @@ export const useAuthStore = () => {
     try {
       const { data } = await backendAPI.get("auth/renew");
       window.localStorage.setItem("token", data.token);
-      dispatch(onLogin({ uuid: data.uuid, name: data.name }));
+      delete data.token;
+      delete data.ok;
+      delete data.msg;
+      dispatch(onLogin(data));
     } catch (error) {
       window.localStorage.clear();
       dispatch(onLogout());
