@@ -1,10 +1,10 @@
-import { useSelector } from "react-redux";
 import { useUiStore, useForm, useCalendarStore } from "../hooks";
-import { getAvailableHours } from "../helpers/getAvailableHours";
 import { patterns } from "../utilitys/patterns.js";
 import { useMemo, useState } from "react";
 import toast from 'react-simple-toasts';
 import 'react-simple-toasts/dist/style.css';
+import { useAuthStore } from "../hooks/useAuthStore.js";
+import { useEffect } from "react";
 
 const formValidations = {
   title: (value) => ( value.length > 5 && patterns.onlyLetters.js.test(value) ),
@@ -17,11 +17,14 @@ export const Modal = ({ open, titleModal }) => {
   // obteniendo el estado del toggle
   const { handletoggleModal } = useUiStore();
 
+  // obteniendo el usuario de la sesion actual
+  const { user } = useAuthStore();
+  
   // obteniendo las funciones del custom hook para manejar el estado
-  const { handleSetActiveEvent, handleAddEvent, handleUpdateEvent, handleDeleteEvent } = useCalendarStore();
+  const { activeEvent, availableHours, handleSetActiveEvent, handleGetAvailableHours, handleAddEvent, handleUpdateEvent, handleDeleteEvent } = useCalendarStore();
 
-  // obteniendo el evento activo
-  const { events, activeEvent } = useSelector((state) => state.calendar);
+  // verificando si es el evento del usuario de la sesion actual
+  const itsSameUser = ( activeEvent.user._id || activeEvent.user.uuid ) === user.uuid;
 
   // si el evento activo tiene un id, significa que es actualizacion por lo que ya viene con address, si no, entonces seteo address con la direccion del usuario
   // memorizamos para evitar estar evaluando esto siempre
@@ -34,12 +37,14 @@ export const Modal = ({ open, titleModal }) => {
   // evaluando el numero a mostrar
   const emailShow = activeEvent.user.email;
 
-  // Obtener horarios disponibles para la fecha seleccionada
-  const availableHours = useMemo(() => getAvailableHours(new Date(activeEvent.start), events),[activeEvent])
-
   // estado para formulario
   const { title, start, end, startHour, endHour, address, comments, titleValid, addressValid, handleOnInputChange, formObject, isValidForm } = 
     useForm(activeEventWithAddress, formValidations);
+
+  // cuando cambie el evento activo, se hace una petición al endpoint que obtiene las horas, enviandole la fecha del evento
+  useEffect(() => {
+    handleGetAvailableHours({date: start});
+  }, [activeEvent])
   
   // estado para manejar cuando se hace submit y mostrar errores del formulario
   const [formSubmitted, setFormSubmitted] = useState(false)
@@ -56,7 +61,6 @@ export const Modal = ({ open, titleModal }) => {
   const handleDrop = () => {
     handleDeleteEvent(activeEvent)
     handletoggleModal()
-    handleSetActiveEvent(null)
     return toast("Event eliminated", {duration: 2000, className: 'text-white bg-red-400 rounded-full py-2 px-4'});
   }
 
@@ -86,8 +90,6 @@ export const Modal = ({ open, titleModal }) => {
 
     if (activeEvent.id){
       handleUpdateEvent(formObject);
-      // Enviar el evento al estado global
-      handleSetActiveEvent(formObject);
       toastMessage = 'Event successfully updated';
     } else{
       // creando el event
@@ -95,12 +97,9 @@ export const Modal = ({ open, titleModal }) => {
         ...formObject,
         start: startDate,
         end: endDate,
-        id: new Date().getTime()
       };
-    
+      // ejecucion de funcion que agrega el evento
       handleAddEvent(event);
-      // Enviar el evento al estado global
-      handleSetActiveEvent(event);
     }
     
     // cerrar el modal
@@ -114,13 +113,9 @@ export const Modal = ({ open, titleModal }) => {
     <div
       className="fixed top-0 left-0 w-full h-full grid place-content-center bg-black bg-opacity-80 z-10"
       onClick={handleToggle}>
-      <dialog
-        className="static flex flex-col items-stretch gap-2 p-4 rounded-lg bg-white min-w-80 sm:min-w-96 md:w-[500px]"
-        open={open}>
+      <dialog className="static flex flex-col items-stretch gap-2 p-4 rounded-lg bg-white min-w-80 sm:min-w-96 md:w-[500px]" open={open}>
         <header>
-          <h2 className="text-2xl font-bold text-center text-slate-800">
-            {titleModal}
-          </h2>
+          <h2 className="text-2xl font-bold text-center text-slate-800"> {titleModal} </h2>
         </header>
         <form id="form-event" className="flex flex-col gap-2" onSubmit={handleOnSubmit}>
 
@@ -128,7 +123,9 @@ export const Modal = ({ open, titleModal }) => {
             <label htmlFor="title" className="font-semibold text-slate-800 after:content-['*'] after:ml-0.5 after:text-red-500" >
               Title
             </label>
-            <input type="text" name="title" id="title" value={title} onChange={handleOnInputChange} placeholder="What you need?" autoFocus minLength={6} pattern={patterns.onlyLetters.html} required className={`p-1 rounded-md ring-2 ring-sky-200 focus:ring-sky-500 ${(!titleValid && formSubmitted) ? 'invalid:ring-red-500' : ''} peer/title`} />
+            <input type="text" name="title" id="title" value={title} onChange={handleOnInputChange} placeholder="What you need?" autoFocus minLength={6} pattern={patterns.onlyLetters.html} required disabled={!itsSameUser}
+              className={`p-1 rounded-md ring-2 ring-sky-200 focus:ring-sky-500 ${(!titleValid && formSubmitted) ? 'invalid:ring-red-500' : ''} peer/title`} 
+            />
             <span className={`text-slate-500 text-xs ${ (!titleValid && formSubmitted) ? 'peer-invalid/title:text-red-500' : '' }`}>Only write words and with more than 5 characters</span>
           </div>
 
@@ -140,7 +137,9 @@ export const Modal = ({ open, titleModal }) => {
                 <label htmlFor="startHour" className="font-semibold text-slate-800 after:content-['*'] after:ml-0.5 after:text-red-500">
                   Start hour
                 </label>
-                <select name="startHour" id="startHour" value={startHour || "null"} onChange={handleOnInputChange} required className="p-1 rounded-md ring-2 ring-sky-200 focus:ring-sky-500">
+                <select name="startHour" id="startHour" value={startHour || "null"} onChange={handleOnInputChange} required disabled={!itsSameUser}
+                  className="p-1 rounded-md ring-2 ring-sky-200 focus:ring-sky-500"
+                >
                   <option value="null">-</option>
                   {
                     !!startHour && (<option key={startHour} value={startHour}>{`${startHour}:00 hrs`}</option>)
@@ -156,7 +155,9 @@ export const Modal = ({ open, titleModal }) => {
                 <label htmlFor="endHour" className="font-semibold text-slate-800 after:content-['*'] after:ml-0.5 after:text-red-500">
                   End hour
                 </label>
-                <select name="endHour" id="endHour" value={endHour || "null"} onChange={handleOnInputChange} required className="p-1 rounded-md ring-2 ring-sky-200 focus:ring-sky-500" >
+                <select name="endHour" id="endHour" value={endHour || "null"} onChange={handleOnInputChange} required disabled={!itsSameUser}
+                  className="p-1 rounded-md ring-2 ring-sky-200 focus:ring-sky-500" 
+                >
                   <option value="null">-</option>
                   {availableHours.map((hour) => {
                     if (hour > startHour) {
@@ -182,7 +183,7 @@ export const Modal = ({ open, titleModal }) => {
             <label htmlFor="address" className="font-semibold text-slate-800 after:content-['*'] after:ml-0.5 after:text-red-500">
               Address
             </label>
-            <textarea name="address" id="address" value={address} onChange={handleOnInputChange} minLength={10} required placeholder="Where is the service?"
+            <textarea name="address" id="address" value={address} onChange={handleOnInputChange} minLength={10} required placeholder="Where is the service?" disabled={!itsSameUser}
               className={`p-1 rounded-md ring-2 ring-sky-200 focus:ring-sky-500 ${!addressValid && formSubmitted ? "invalid:ring-red-500" : ""} peer/address`}
             ></textarea>
             <span className={`text-slate-500 text-xs ${!addressValid && formSubmitted? "peer-invalid/address:text-red-500" : ""}`}>
@@ -194,7 +195,9 @@ export const Modal = ({ open, titleModal }) => {
             <label htmlFor="" className="font-semibold text-slate-800">
               Comments
             </label>
-            <textarea name="comments" id="comments" value={comments} onChange={handleOnInputChange} placeholder="Any special instruction?" className="p-1 rounded-md ring-2 ring-sky-200 focus:ring-sky-500">
+            <textarea name="comments" id="comments" value={comments} onChange={handleOnInputChange} placeholder="Any special instruction?" disabled={!itsSameUser}
+              className="p-1 rounded-md ring-2 ring-sky-200 focus:ring-sky-500"
+            >
             </textarea>
           </div>
         </form>
@@ -203,17 +206,20 @@ export const Modal = ({ open, titleModal }) => {
           <button className="bg-red-500 text-white px-2 py-1 rounded-lg hover:scale-105 active:scale-95" onClick={handleToggle}>
             Cancel
           </button>
-          {
-            activeEvent.id
+          {activeEvent.id
             && 
             (<button className="bg-red-500 text-white px-2 py-1 rounded-lg hover:scale-105 active:scale-95" onClick={handleDrop}>
                 Drop
-              </button>
+             </button>
             )
           }
-          <button form="form-event" type="submit" className="bg-sky-500 text-white px-2 py-1 rounded-lg hover:scale-105 active:scale-95 font-semibold disabled:bg-sky-100">
-            Accept
-          </button>
+          {itsSameUser
+            &&
+            (<button form="form-event" type="submit" className="bg-sky-500 text-white px-2 py-1 rounded-lg hover:scale-105 active:scale-95 font-semibold disabled:bg-sky-100">
+              Accept
+             </button>
+            )
+          }
         </footer>
       </dialog>
     </div>

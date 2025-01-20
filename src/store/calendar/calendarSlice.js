@@ -5,10 +5,14 @@ export const calendarSlice = createSlice({
   initialState: {
     events: [],
     activeEvent: null,
+    availableHours: [],
   },
   reducers: {
     setActiveEvent: (state, { payload }) => {
       state.activeEvent = payload;
+    },
+    setAvailableHours: (state, { payload }) => {
+      state.availableHours = payload;
     },
     onAddEvent: (state, { payload }) => {
       state.events.push(payload);
@@ -30,5 +34,5 @@ export const calendarSlice = createSlice({
   },
 });
 
-export const { setActiveEvent, onAddEvent, onUpdateEvent, onDeleteEvent, onLoadEvents } =
+export const { setActiveEvent, setAvailableHours, onAddEvent, onUpdateEvent, onDeleteEvent, onLoadEvents } =
   calendarSlice.actions;
