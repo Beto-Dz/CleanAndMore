@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getEnvVariables } from "../helpers/getEnvVariables";
+import { getEnvVariables } from "../helpers";
 
 // obteniendo base url de las variables de entorno
 const { VITE_BASE_URL } = getEnvVariables();

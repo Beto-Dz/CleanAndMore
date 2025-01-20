@@ -1,9 +1,8 @@
-import { useUiStore, useForm, useCalendarStore } from "../hooks";
+import { useUiStore, useForm, useCalendarStore, useAuthStore } from "../hooks";
 import { patterns } from "../utilitys/patterns.js";
 import { useMemo, useState } from "react";
 import toast from 'react-simple-toasts';
 import 'react-simple-toasts/dist/style.css';
-import { useAuthStore } from "../hooks/useAuthStore.js";
 import { useEffect } from "react";
 
 const formValidations = {
@@ -43,7 +42,10 @@ export const Modal = ({ open, titleModal }) => {
 
   // cuando cambie el evento activo, se hace una petición al endpoint que obtiene las horas, enviandole la fecha del evento
   useEffect(() => {
-    handleGetAvailableHours({date: start});
+    // si es el mismo hacemos el fetching para ver las horas disponibles
+    if(itsSameUser){
+      handleGetAvailableHours({date: start});
+    }
   }, [activeEvent])
   
   // estado para manejar cuando se hace submit y mostrar errores del formulario

@@ -1,5 +1,5 @@
 import {ArrowRightEndOnRectangleIcon } from "@heroicons/react/24/outline";
-import { useAuthStore } from "../hooks/useAuthStore";
+import { useAuthStore } from "../hooks";
 
 export const Navbar = () => {
 

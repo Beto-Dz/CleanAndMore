@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { setActiveEvent, setAvailableHours, onAddEvent, onUpdateEvent, onDeleteEvent, onLoadEvents } from "../store/calendar/calendarSlice";
 import backendAPI from "../api/backendAPI";
-import { convertDateToISO } from "../helpers/convertDateToISO";
+import { convertDateToISO } from "../helpers";
 
 export const useCalendarStore = () => {
   // funcion para despachar acciones al store
@@ -17,6 +17,7 @@ export const useCalendarStore = () => {
 
   // funcion de ayuda para obtener las horas disponibles
   const handleGetAvailableHours = async(date = {}) => {
+    console.log("se hizo fetching de horas disponibles")
     try {
       const { data } = await backendAPI.post('/events/getAvailableHours', date);
       dispatch(setAvailableHours(data.availableHours))
@@ -27,7 +28,7 @@ export const useCalendarStore = () => {
 
   // funcion de ayuda para agregar evento al store
   const handleAddEvent = async(event = {}) => {
-
+    console.log(event)
     try {
       // envio a la base de datos
       const { data } = await backendAPI.post('/events/new', event)

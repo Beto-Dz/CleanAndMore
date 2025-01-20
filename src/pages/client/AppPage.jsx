@@ -1,18 +1,15 @@
 import { Calendar } from "react-big-calendar";
-import { Navbar } from "../../components/Navbar";
-import { Layout } from "../Layout";
-import { CalendarLocalizer } from "../../helpers/CalendarLocalizer";
+import { Navbar, EventBox, Modal } from "../../components";
+import { Layout } from "../";
+import { CalendarLocalizer } from "../../helpers";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import { EventBox } from "../../components/EventBox";
-import { useUiStore, useCalendarStore } from "../../hooks";
-import { Modal } from "../../components/Modal";
+import { useUiStore, useCalendarStore, useAuthStore } from "../../hooks";
 import { startOfDay, isBefore } from "date-fns";
 import toast from 'react-simple-toasts';
 import 'react-simple-toasts/dist/style.css';
 import { useEffect } from "react";
-import { useAuthStore } from "../../hooks/useAuthStore";
 
-export const ClientPage = () => {
+export const AppPage = () => {
   // obteniendo datos del estado ui por medio del custom hook
   const { isDateModalOpen, handletoggleModal } = useUiStore();
   // obteniendo datos del estado calendar por medio del custom hook

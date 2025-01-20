@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useAuthStore } from "../../hooks/useAuthStore";
+import { useAuthStore } from "../../hooks";
 import toast from "react-simple-toasts";
 
 export const LayoutAuth = ({ children }) => {

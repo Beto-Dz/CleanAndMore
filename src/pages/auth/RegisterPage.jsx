@@ -1,9 +1,8 @@
 import { useMemo, useState } from "react";
-import { useForm } from "../../hooks/useForm";
+import { useForm, useAuthStore } from "../../hooks";
 import { patterns } from "../../utilitys/patterns";
 import { Link } from "react-router-dom";
 import { LayoutAuth } from "./LayoutAuth";
-import { useAuthStore } from "../../hooks/useAuthStore";
 
 const formValidations = {
   name: (value) => value.length >= 8 && patterns.onlyLetters.js.test(value),

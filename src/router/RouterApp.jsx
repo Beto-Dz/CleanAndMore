@@ -1,9 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom";
-import { ClientPage } from "../pages/client/ClientPage";
-import { AuthPage } from "../pages/auth/AuthPage";
-import { Welcome } from "../pages/Welcome";
-import { RegisterPage } from "../pages/auth/RegisterPage";
-import { useAuthStore } from "../hooks/useAuthStore";
+import { AppPage, AuthPage, Welcome, RegisterPage, } from "../pages";
+import { useAuthStore } from "../hooks";
 import { useEffect } from "react";
 
 export const RouterApp = () => {
@@ -20,7 +17,7 @@ export const RouterApp = () => {
       <Route path="/" element={<Welcome />} />)
       {status === "authenticated" ? (
         <>
-          <Route path="/app" element={<ClientPage />} />)
+          <Route path="/app" element={<AppPage />} />)
           <Route path="/*" element={<Navigate to="/app" />} />)
         </>
       ) : (
