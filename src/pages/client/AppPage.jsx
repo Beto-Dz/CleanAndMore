@@ -74,10 +74,10 @@ export const AppPage = () => {
   return (
     <Layout>
       <Navbar />
-      <section className="overflow-scroll">
+      <section className="overflow-scroll p-1">
         <Calendar
           localizer={CalendarLocalizer}
-          className="bg-emerald-50"
+          
           events={events}
           selectable
           onSelectSlot={onSelectSlot}
