@@ -1,6 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { onClearErrorMessage, onLogin, onLogout, setCheckingStatus } from "../store/auth/authSlice";
-import { onCalendarLogout } from "../store/calendar/calendarSlice"
+import { onClearErrorMessage, onLogin, onLogout, setCheckingStatus, onCalendarLogout } from "../store";
 import backendAPI from "../api/backendAPI";
 
 export const useAuthStore = () => {
@@ -53,7 +52,7 @@ export const useAuthStore = () => {
   };
 
   // funcion para checkear el token, si no hay uno en el localStorage
-  // cierra sesion pero obtiene otro
+  // cierra sesion, Si si hay uno entonces hace una peticion para obtener un nuevo JWT
   const checkAuthToken = async () => {
     const token = window.localStorage.getItem("token");
 

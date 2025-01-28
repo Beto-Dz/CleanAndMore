@@ -19,12 +19,15 @@ export const AppPage = () => {
 
   // funcion de ayuda para obtener el slot seleccionado
   const onSelectSlot = ({ slots, start }) => {
+    // si se han seleccionado más de un slot
     if (slots.length > 1) return;
 
+    // si el slot correponde a una fecha anterior a la actual
     if(isBefore(start, startOfDay(new Date()))) {
       return toast('Events cannot be scheduled for earlier dates', {duration: 3000, className: 'text-white bg-red-400 rounded-full py-2 px-4'});
     };
     
+    // definiendo un nuevo evento
     const event = {
       title: "",
       start: startOfDay(start),
@@ -41,6 +44,7 @@ export const AppPage = () => {
       comments: "",
     };
 
+    // despachando al estado un nuevo evento activo
     handleSetActiveEvent(event);
 
     // Abrir el modal
@@ -77,7 +81,6 @@ export const AppPage = () => {
       <section className="overflow-scroll p-1">
         <Calendar
           localizer={CalendarLocalizer}
-          
           events={events}
           selectable
           onSelectSlot={onSelectSlot}
