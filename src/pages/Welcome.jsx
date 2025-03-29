@@ -21,7 +21,7 @@ export const Welcome = () => {
               </li>
               <li className="">
                 <span className="font-semibold">Sign In</span>
-                <br /><span className="text-slate-900"> This helps us to have a personalized follow up and offeryou the best attention.</span>
+                <br /><span className="text-slate-900"> This helps us to have a personalized follow up and offer you the best attention.</span>
               </li>
               <li className="">
                 <span className="font-semibold">Schedule your Day</span>
@@ -38,9 +38,9 @@ export const Welcome = () => {
         </section>
       </section>
       <a href="https://wa.me/19146151306?text=Hello%20cleaning%20and%20more!%20I%20need..." target="_blank" 
-        className="fixed bottom-6 right-6 hover:scale-105 active:scale-95 drop-shadow-lg flex gap-2 items-center"
+        className="fixed bottom-6 right-6 hover:scale-105 active:scale-95 drop-shadow-lg flex gap-2 items-center bg-primary bg-opacity-40 p-1 px-2 rounded-md transition-all"
       >
-        <span className="text-slate-900 font-semibold">need help, write us!</span><img src="/whatsapp.svg" alt="whatsapp image icon" className="w-10 h-10" />
+        <span className="text-slate-900 font-semibold">Need help, Contact Us!</span><img src="/whatsapp.svg" alt="whatsapp image icon" className="w-10 h-10" />
       </a>
     </header>
   );
