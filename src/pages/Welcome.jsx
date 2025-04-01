@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { ModalPrices } from "../components/ModalPrices";
 
 export const Welcome = () => {
   return (
@@ -12,27 +13,41 @@ export const Welcome = () => {
           <img src="/favicon.svg" alt="icon of the page" className="w-20 h-20 drop-shadow-3xl" />
         </section>
         <section className="grid grid-rows-2 md:grid-rows-1 md:grid-cols-2 place-items-center">
-          <section className="flex flex-col gap-3 justify-center items-center">
-            <h2 className="text-center font-bold text-2xl">Cleaning in only 4 Steps!</h2>
-            <ol className="list-inside list-decimal">
-              <li className="">
-                <span className="font-semibold">Create an account</span>
-                <br /><span className="text-slate-900"> Fill out our simple registration form.</span>
-              </li>
-              <li className="">
-                <span className="font-semibold">Sign In</span>
-                <br /><span className="text-slate-900"> This helps us to have a personalized follow up and offer you the best attention.</span>
-              </li>
-              <li className="">
-                <span className="font-semibold">Schedule your Day</span>
-                <br /><span className="text-slate-900"> Choose the day and time that works best for you.</span>
-              </li>
-              <li className="">
-                <span className="font-semibold">Enjoy Your Clean Home</span>
-                <br /><span className="text-slate-900"> Leave everything in our hands.</span>
-              </li>
-            </ol>
-            <Link to="/app/" className="py-2 px-3 bg-secondary rounded-full font-semibold hover:scale-105 active:scale-95 drop-shadow-lg ring-white ring-1">Get started!</Link>
+          <section className="grid gap-8">
+            <section className="flex flex-col gap-3 justify-center items-center">
+              <h2 className="text-center font-bold text-2xl">Cleaning in only 4 Steps!</h2>
+              <ol className="list-inside list-decimal">
+                <li className="">
+                  <span className="font-semibold">Create an account</span>
+                  <br /><span className="text-slate-900"> Fill out our simple registration form.</span>
+                </li>
+                <li className="">
+                  <span className="font-semibold">Sign In</span>
+                  <br /><span className="text-slate-900"> This helps us to have a personalized follow up and offer you the best attention.</span>
+                </li>
+                <li className="">
+                  <span className="font-semibold">Schedule your Day</span>
+                  <br /><span className="text-slate-900"> Choose the day and time that works best for you.</span>
+                </li>
+                <li className="">
+                  <span className="font-semibold">Enjoy Your Clean Home</span>
+                  <br /><span className="text-slate-900"> Leave everything in our hands.</span>
+                </li>
+              </ol>
+              <Link to="/app/" className="py-2 px-3 bg-secondary rounded-full font-semibold hover:scale-105 active:scale-95 drop-shadow-lg ring-white ring-1">Get started!</Link>
+              <ModalPrices />
+            </section>
+
+            {/* <section className="w-full flex flex-col gap-3 items-center">
+              <h2 className="text-center font-bold text-2xl">Prices</h2>
+              <ol className="list-inside list-decimal w-full">
+                <li><span className="font-semibold">$25.00</span><span className="text-slate-900"> for regular cleaning.</span></li>
+                <li><span className="font-semibold">$30.00</span><span className="text-slate-900"> for regular cleaning with liquids.</span></li>
+                <li><span className="font-semibold">$30.00</span><span className="text-slate-900"> for complete cleaning without liquids.</span></li>
+                <li><span className="font-semibold">$35.00</span><span className="text-slate-900"> for complete cleaning with liquids</span></li>
+              </ol>
+            </section> */}
+
           </section>
           <img src="/524shots_so.png" alt="icon of the page" className="aspect-auto drop-shadow-2xl rotate-3 contrast-100" />
         </section>
